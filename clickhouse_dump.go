@@ -12,11 +12,10 @@ import (
 )
 
 var (
-	connect *sql.DB
-	err     error
+	connect    *sql.DB
+	err        error
+	token_list []uint32
 )
-
-var token_list = []uint32{58375943, 58731527, 1893123, 57489927}
 
 func SetDB() {
 
@@ -118,9 +117,10 @@ func onNoReconnect(attempt int) {
 	fmt.Printf("Maximum no of reconnect attempt reached: %d", attempt)
 }
 
-func ClickhouseDump() {
+func ClickhouseDump(tokens []uint32) {
 	apiKey := "your_api_key"
 	accessToken := "your_access_token"
+	token_list = tokens
 
 	// Perform DB related part
 	SetDB()

@@ -14,7 +14,8 @@ import (
 )
 
 // Dump tick websocket data to clickhouse
-clickhousegraphqlgo.ClickhouseDump()
+// Pass list of instrument token for subscription to websocket feeds
+clickhousegraphqlgo.ClickhouseDump([]uint32{779521, 256265, 1893123, 13209858})
 
 // Run graphql server on clickhouse
 clickhousegraphqlgo.GraphqlServer()
