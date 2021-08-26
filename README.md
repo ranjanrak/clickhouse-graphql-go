@@ -4,18 +4,21 @@ This package stores real time [streaming websocket data](https://kite.trade/docs
 
 ## Installation
 ```
-git clone https://github.com/ranjanrak/clickhouse-graphql-go.git
-cd clickhouse-graphql-go
+go get github.com/ranjanrak/clickhouse-graphql-go
 ```
 
 ## Usage
-#### Dump data to clickhouse
 ```
-go run clickhouseQR.go
-```
-#### Run local graphql server
-```
-go run graphQR.go
+import (
+    clickhousegraphqlgo "github.com/ranjanrak/clickhouse-graphql-go"
+)
+
+// Dump tick websocket data to clickhouse
+clickhousegraphqlgo.ClickhouseDump()
+
+// Run graphql server on clickhouse
+clickhousegraphqlgo.GraphqlServer()
+
 ```
 #### GraphQL query
 ```
