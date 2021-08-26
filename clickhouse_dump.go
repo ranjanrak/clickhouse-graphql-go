@@ -1,18 +1,19 @@
-package main
+package clickhousegraphqlgo
 
 import (
 	"database/sql"
 	"fmt"
 	"log"
 	"time"
+
 	"github.com/ClickHouse/clickhouse-go"
 
-	"github.com/zerodha/gokiteconnect/v3/ticker"
+	kiteticker "github.com/zerodha/gokiteconnect/v3/ticker"
 )
 
 var (
-	connect  *sql.DB
-	err      error
+	connect *sql.DB
+	err     error
 )
 
 var token_list = []uint32{58375943, 58731527, 1893123, 57489927}
@@ -89,7 +90,7 @@ func onTick(tick kiteticker.Tick) {
 		average_traded_price, volume_traded, oi) VALUES (?, ?, ?, ?, ?, ?)`)
 
 	if err != nil {
-	log.Fatal(err)
+		log.Fatal(err)
 	}
 	// Load tick data to DB
 	if _, err := stmt.Exec(
@@ -117,11 +118,10 @@ func onNoReconnect(attempt int) {
 	fmt.Printf("Maximum no of reconnect attempt reached: %d", attempt)
 }
 
-
-func main() {
+func ClickhouseDump() {
 	apiKey := "your_api_key"
 	accessToken := "your_access_token"
-	
+
 	// Perform DB related part
 	SetDB()
 
