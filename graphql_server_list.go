@@ -20,7 +20,7 @@ type tickData struct {
 	OI              int
 }
 
-func GraphqlServer() {
+func GraphqlServerList() {
 	// Use DSN as your clickhouse DB setup.
 	// visit https://github.com/ClickHouse/clickhouse-go#dsn to know more
 	connect, err := sql.Open("clickhouse", "tcp://127.0.0.1:9000?debug=true")
@@ -99,7 +99,7 @@ func GraphqlServer() {
 		Name: "RootQuery",
 		Fields: graphql.Fields{
 			"Tick": &graphql.Field{
-				Type:        tickType,
+				Type:        graphql.NewList(tickType),
 				Description: "Get tick detail",
 				Args: graphql.FieldConfigArgument{
 					"instrument_token": &graphql.ArgumentConfig{
@@ -120,14 +120,16 @@ func GraphqlServer() {
 						log.Fatal(err)
 					}
 					defer rows.Close()
-					// fetch latest tick data
+					// fetch all available tick data as list
+					tickDataSum := make([]*tickData, 0)
 					for rows.Next() {
 						if err := rows.Scan(&tickDataRef.InstrumentToken, &tickDataRef.Timestamp, &tickDataRef.LastPrice, &tickDataRef.VolumeTraded, &tickDataRef.OI); err != nil {
 							log.Fatal(err)
 						}
+						tickDataSum = append(tickDataSum, tickDataRef)
 					}
 
-					return tickDataRef, nil
+					return tickDataSum, nil
 				},
 			},
 		},

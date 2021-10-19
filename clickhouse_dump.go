@@ -17,7 +17,7 @@ var (
 	token_list []uint32
 )
 
-func SetDB() {
+func setDB() {
 
 	// Use DSN as your clickhouse DB setup.
 	// visit https://github.com/ClickHouse/clickhouse-go#dsn to know more
@@ -123,7 +123,7 @@ func ClickhouseDump(tokens []uint32) {
 	token_list = tokens
 
 	// Perform DB related part
-	SetDB()
+	setDB()
 
 	// Create new Kite ticker instance
 	ticker = kiteticker.New(apiKey, accessToken)
