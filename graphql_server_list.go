@@ -1,13 +1,10 @@
 package clickhousegraphqlgo
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
 
-	"github.com/ClickHouse/clickhouse-go"
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
 )
@@ -20,20 +17,7 @@ type tickData struct {
 	OI              int
 }
 
-func GraphqlServerList() {
-	// Use DSN as your clickhouse DB setup.
-	// visit https://github.com/ClickHouse/clickhouse-go#dsn to know more
-	connect, err := sql.Open("clickhouse", "tcp://127.0.0.1:9000?debug=true")
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := connect.Ping(); err != nil {
-		if exception, ok := err.(*clickhouse.Exception); ok {
-			fmt.Printf("[%d] %s \n%s\n", exception.Code, exception.Message, exception.StackTrace)
-		} else {
-			fmt.Println(err)
-		}
-	}
+func (c *Client) GraphqlServerList() {
 	tickType := graphql.NewObject(graphql.ObjectConfig{
 		Name:        "Tick",
 		Description: "Tick Data",
@@ -110,7 +94,7 @@ func GraphqlServerList() {
 					instrument_token, _ := params.Args["instrument_token"].(int)
 
 					tickDataRef := &tickData{}
-					rows, err := connect.Query(`select instrument_token, 	
+					rows, err := c.dbClient.Query(`select instrument_token, 	
 												  timestamp, 
 												  last_price,
 												  volume_traded,

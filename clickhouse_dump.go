@@ -12,26 +12,35 @@ import (
 )
 
 var (
-	connect    *sql.DB
 	err        error
 	token_list []uint32
 )
 
-func setDB() {
+// Client represents clickhouse DB client connection
+type Client struct {
+	dbClient *sql.DB
+}
 
+// Create new client instance
+func New() *Client {
 	// Use DSN as your clickhouse DB setup.
 	// visit https://github.com/ClickHouse/clickhouse-go#dsn to know more
-	connect, err = sql.Open("clickhouse", "tcp://127.0.0.1:9000?debug=true")
-
-	if err := connect.Ping(); err != nil {
+	connect, err := sql.Open("clickhouse", "tcp://127.0.0.1:9000?debug=true")
+	if err = connect.Ping(); err != nil {
 		if exception, ok := err.(*clickhouse.Exception); ok {
 			fmt.Printf("[%d] %s \n%s\n", exception.Code, exception.Message, exception.StackTrace)
 		} else {
 			fmt.Println(err)
 		}
 	}
+	return &Client{
+		dbClient: connect,
+	}
+}
 
-	_, err = connect.Exec(`
+func (c *Client) setDB() {
+
+	_, err = c.dbClient.Exec(`
 		CREATE TABLE IF NOT EXISTS tickstore (
 			instrument_token       UInt32,
 			timestamp              DateTime('Asia/Calcutta'),
@@ -59,7 +68,7 @@ func onError(err error) {
 
 // Triggered when websocket connection is closed
 func onClose(code int, reason string) {
-	defer connect.Close()
+	defer c.dbClient.Close()
 	fmt.Println("Close: ", code, reason)
 }
 
@@ -80,7 +89,7 @@ func onTick(tick kiteticker.Tick) {
 
 	fmt.Printf("%+v\n", tick)
 
-	tx, err := connect.Begin()
+	tx, err := c.dbClient.Begin()
 	if err != nil {
 		log.Fatal(err)
 	}
