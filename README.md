@@ -8,20 +8,23 @@ go get github.com/ranjanrak/clickhouse-graphql-go
 ```
 
 ## Usage
-```
+```go
 import (
     clickhousegraphqlgo "github.com/ranjanrak/clickhouse-graphql-go"
 )
 
+// Create new graphql instance
+client := clickhousegraphqlgo.New()
+
 // Dump tick websocket data to clickhouse
 // Pass list of instrument token for subscription to websocket feeds
-clickhousegraphqlgo.ClickhouseDump([]uint32{779521, 256265, 1893123, 13209858})
+client.ClickhouseDump([]uint32{779521, 256265, 1893123, 13209858})
 
 // Run graphql server on clickhouse
-clickhousegraphqlgo.GraphqlServer()
+client.GraphqlServer()
 
 // Run graphql server to fetch GraphQL List
-clickhousegraphqlgo.GraphqlServerList()
+client.GraphqlServerList()
 
 ```
 #### GraphQL query
