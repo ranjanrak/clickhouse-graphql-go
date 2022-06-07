@@ -3,19 +3,10 @@ package clickhousegraphqlgo
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/handler"
 )
-
-type tickData struct {
-	InstrumentToken int
-	Timestamp       time.Time
-	LastPrice       float64
-	VolumeTraded    int
-	OI              int
-}
 
 func (c *Client) GraphqlServer() {
 	tickType := graphql.NewObject(graphql.ObjectConfig{
@@ -110,7 +101,6 @@ func (c *Client) GraphqlServer() {
 							log.Fatal(err)
 						}
 					}
-
 					return tickDataRef, nil
 				},
 			},

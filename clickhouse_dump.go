@@ -14,18 +14,18 @@ import (
 var (
 	err        error
 	token_list []uint32
+	ticker     *kiteticker.Ticker
+	dbClient   *sql.DB
 )
 
-// Client represents clickhouse DB client connection
-type Client struct {
-	dbClient *sql.DB
-}
-
 // Create new client instance
-func New() *Client {
+func New(clientPar ClientParam) *Client {
 	// Use DSN as your clickhouse DB setup.
 	// visit https://github.com/ClickHouse/clickhouse-go#dsn to know more
-	connect, err := sql.Open("clickhouse", "tcp://127.0.0.1:9000?debug=true")
+	if clientPar.DBSource == "" {
+		clientPar.DBSource = "tcp://127.0.0.1:9000?debug=true"
+	}
+	connect, err := sql.Open("clickhouse", clientPar.DBSource)
 	if err = connect.Ping(); err != nil {
 		if exception, ok := err.(*clickhouse.Exception); ok {
 			fmt.Printf("[%d] %s \n%s\n", exception.Code, exception.Message, exception.StackTrace)
@@ -34,12 +34,14 @@ func New() *Client {
 		}
 	}
 	return &Client{
-		dbClient: connect,
+		dbClient:    connect,
+		apiKey:      clientPar.ApiKey,
+		accessToken: clientPar.AccessToken,
 	}
 }
 
+// setDB creates tickstore table
 func (c *Client) setDB() {
-
 	_, err = c.dbClient.Exec(`
 		CREATE TABLE IF NOT EXISTS tickstore (
 			instrument_token       UInt32,
@@ -51,15 +53,10 @@ func (c *Client) setDB() {
 		) engine=MergeTree()
 		ORDER BY (timestamp)
 	`)
-
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error creating table: %v", err)
 	}
 }
-
-var (
-	ticker *kiteticker.Ticker
-)
 
 // Triggered when any error is raised
 func onError(err error) {
@@ -68,7 +65,8 @@ func onError(err error) {
 
 // Triggered when websocket connection is closed
 func onClose(code int, reason string) {
-	defer c.dbClient.Close()
+	// Close DB client once
+	defer dbClient.Close()
 	fmt.Println("Close: ", code, reason)
 }
 
@@ -84,21 +82,19 @@ func onConnect() {
 	}
 }
 
-// Triggered when tick is recevived
+// Triggered when tick is received
 func onTick(tick kiteticker.Tick) {
 
-	fmt.Printf("%+v\n", tick)
-
-	tx, err := c.dbClient.Begin()
+	tx, err := dbClient.Begin()
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error starting DB transaction: %v", err)
 	}
 
 	stmt, err := tx.Prepare(`INSERT INTO tickstore (instrument_token, timestamp, last_price,
 		average_traded_price, volume_traded, oi) VALUES (?, ?, ?, ?, ?, ?)`)
 
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error creating sql statement: %v", err)
 	}
 	// Load tick data to DB
 	if _, err := stmt.Exec(
@@ -109,10 +105,10 @@ func onTick(tick kiteticker.Tick) {
 		tick.VolumeTraded,
 		tick.OI,
 	); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error executing a query: %v", err)
 	}
 	if err := tx.Commit(); err != nil {
-		log.Fatal(err)
+		log.Fatalf("Error commiting the sql transaction: %v", err)
 	}
 }
 
@@ -126,16 +122,16 @@ func onNoReconnect(attempt int) {
 	fmt.Printf("Maximum no of reconnect attempt reached: %d", attempt)
 }
 
-func ClickhouseDump(tokens []uint32) {
-	apiKey := "your_api_key"
-	accessToken := "your_access_token"
+// ClickhouseDump starts ticker and dumps tickdata to clickhouse
+func (c *Client) ClickhouseDump(tokens []uint32) {
 	token_list = tokens
+	dbClient = c.dbClient
 
-	// Perform DB related part
-	setDB()
+	// Perform DB setup
+	c.setDB()
 
 	// Create new Kite ticker instance
-	ticker = kiteticker.New(apiKey, accessToken)
+	ticker = kiteticker.New(c.apiKey, c.accessToken)
 
 	// Assign callbacks
 	ticker.OnError(onError)

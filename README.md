@@ -1,23 +1,31 @@
 # clickhouse-graphql-go
-GraphQL implementation for clickhouse in Go. 
-This package stores real time [streaming websocket data](https://kite.trade/docs/connect/v3/websocket/) in [clickhouse](https://clickhouse.tech/) and uses [GraphQL](https://graphql.org/) to consume the same.   
+
+GraphQL implementation for clickhouse in Go.
+This package stores real time [streaming websocket data](https://kite.trade/docs/connect/v3/websocket/) in [clickhouse](https://clickhouse.tech/) and uses [GraphQL](https://graphql.org/) to consume the same.
 
 ## Installation
+
 ```
 go get github.com/ranjanrak/clickhouse-graphql-go
 ```
 
 ## Usage
+
 ```go
 import (
     clickhousegraphqlgo "github.com/ranjanrak/clickhouse-graphql-go"
 )
 
 // Create new graphql instance
-client := clickhousegraphqlgo.New()
+client := clickhousegraphqlgo.New(clickhousegraphqlgo.ClientParam{
+		DBSource:    "tcp://127.0.0.1:9000?debug=true",
+		ApiKey:      "your_api_key",
+		AccessToken: "your_access_token",
+}))
 
 // Dump tick websocket data to clickhouse
 // Pass list of instrument token for subscription to websocket feeds
+// Nothing will run after this
 client.ClickhouseDump([]uint32{779521, 256265, 1893123, 13209858})
 
 // Run graphql server on clickhouse
@@ -27,8 +35,11 @@ client.GraphqlServer()
 client.GraphqlServerList()
 
 ```
+
 #### GraphQL query
+
 1> `GraphqlServer()`
+
 ```
 query {
   Tick(instrument_token:1893123) {
@@ -40,7 +51,9 @@ query {
   }
 }
 ```
+
 2> `GraphqlServerList()`
+
 ```
 {
   Tick(instrument_token: 779521) {
@@ -54,7 +67,9 @@ query {
 ```
 
 ## Response
+
 1> `GraphqlServer()`
+
 ```
 {
   "data": {
@@ -68,7 +83,9 @@ query {
   }
 }
 ```
+
 2> `GraphqlServerList()`
+
 ```
 {
   "data": {
@@ -108,7 +125,9 @@ query {
   }
 }
 ```
+
 #### Sample query on graphiQL UI
+
 1> `GraphqlServer()`
 
 ![graphQL_dash](https://user-images.githubusercontent.com/29432131/130611805-cb60ba36-4e3e-4a24-8b56-722f0b8ef238.png)
