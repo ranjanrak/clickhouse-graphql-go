@@ -25,6 +25,7 @@ func New(clientPar ClientParam) *Client {
 	if clientPar.DBSource == "" {
 		clientPar.DBSource = "tcp://127.0.0.1:9000?debug=true"
 	}
+
 	connect, err := sql.Open("clickhouse", clientPar.DBSource)
 	if err = connect.Ping(); err != nil {
 		if exception, ok := err.(*clickhouse.Exception); ok {
@@ -33,10 +34,21 @@ func New(clientPar ClientParam) *Client {
 			fmt.Println(err)
 		}
 	}
+	schemaSingle, err := createSchema(connect, "single")
+	if err != nil {
+		log.Fatalf("failed to create single object schema, error: %v", err)
+	}
+	schemaList, err := createSchema(connect, "List")
+	if err != nil {
+		log.Fatalf("failed to create list of object schema, error: %v", err)
+	}
+
 	return &Client{
-		dbClient:    connect,
-		apiKey:      clientPar.ApiKey,
-		accessToken: clientPar.AccessToken,
+		dbClient:     connect,
+		apiKey:       clientPar.ApiKey,
+		accessToken:  clientPar.AccessToken,
+		schemaSingle: &schemaSingle,
+		schemaList:   &schemaList,
 	}
 }
 
