@@ -1,0 +1,16 @@
+env:
+  - CGO_ENABLED=0
+builds:
+  - binary: clickhousegraphqlgo
+    goos:
+      - linux
+      - windows
+      - darwin
+    goarch:
+      - amd64
+    dir: ./release/
+archives:
+  - format: tar.gz
+    files:
+      - README.md
+      - LICENSE
