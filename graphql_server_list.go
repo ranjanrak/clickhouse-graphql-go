@@ -2,24 +2,9 @@ package clickhousegraphqlgo
 
 import (
 	"encoding/json"
-	"net/http"
 
 	"github.com/graphql-go/graphql"
-	"github.com/graphql-go/handler"
 )
-
-// GraphqlServerList runs graphql query server for resolverList on localhost:8080
-func (c *Client) GraphqlServerList() {
-	h := handler.New(&handler.Config{
-		Schema:   c.schemaList,
-		Pretty:   true,
-		GraphiQL: true,
-	})
-
-	// serve HTTP
-	http.Handle("/graphql", h)
-	http.ListenAndServe(":8080", nil)
-}
 
 // GraphqlQueryList returns graphql query output performed on the tick list schema
 func (c *Client) GraphqlQueryList(reqQuery string) (ResultList, error) {

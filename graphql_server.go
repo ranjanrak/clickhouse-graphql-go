@@ -8,10 +8,14 @@ import (
 	"github.com/graphql-go/handler"
 )
 
-// GraphqlServer runs graphql query server for singleResolver on localhost:8080
-func (c *Client) GraphqlServer() {
+// GraphqlServer runs graphql query server for singleResolver or listResolver on localhost:8080
+func (c *Client) GraphqlServer(reqSchemaType string) {
+	schemaType := c.schemaSingle
+	if reqSchemaType == "List" {
+		schemaType = c.schemaList
+	}
 	h := handler.New(&handler.Config{
-		Schema:   c.schemaSingle,
+		Schema:   schemaType,
 		Pretty:   true,
 		GraphiQL: true,
 	})
