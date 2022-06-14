@@ -1,0 +1,9 @@
+env:
+  - CGO_ENABLED=0
+builds:
+  - skip: true
+archives:
+  - format: tar.gz
+    files:
+      - README.md
+      - LICENSE
