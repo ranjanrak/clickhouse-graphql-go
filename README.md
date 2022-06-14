@@ -30,21 +30,75 @@ client := clickhousegraphqlgo.New(clickhousegraphqlgo.ClientParam{
 // Nothing will run after this
 client.ClickhouseDump([]uint32{779521, 256265, 1893123, 13209858})
 
-// Run graphql server on clickhouse
-client.GraphqlServer()
+// Query
+reqQuery := `query {
+		Tick(instrument_token:779521) {
+		  instrument_token
+		  timestamp
+		  lastprice
+		  volumetraded
+		  oi
+		}
+	}`
 
-// Run graphql server to fetch GraphQL List
-client.GraphqlServerList()
+// Make single object schema graphql Query
+singleQueryStruct, err := client.GraphqlQuery(reqQuery)
+if err != nil {
+  log.Fatalf("failed to execute single object graphql query, errors: %+v", err)
+}
+fmt.Printf("%+v\n", singleQueryStruct)
+
+// Make list of object schema graphqlQuery
+listQueryStruct, err := client.GraphqlQueryList(reqQuery)
+if err != nil {
+  log.Fatalf("failed to execute object list graphql query, errors: %+v", err)
+}
+fmt.Printf("%+v\n", listQueryStruct)
+
+// Run graphql server on clickhouse with single schema
+client.GraphqlServer("")
+
+// Run graphql server to fetch list of object schema GraphQL
+client.GraphqlServer("List")
 
 ```
 
-#### GraphQL query
+#### GraphQL request query
 
-1> `GraphqlServer()`
+1> `GraphqlQuery(reqQuery)`
 
 ```
+reqQuery := `query {
+		Tick(instrument_token:779521) {
+		  instrument_token
+		  timestamp
+		  lastprice
+		  volumetraded
+		  oi
+		}
+	}`
+```
+
+2> `GraphqlQueryList(reqQuery)`
+
+```
+reqQuery := `query {
+		Tick(instrument_token:779521) {
+		  instrument_token
+		  timestamp
+		  lastprice
+		  volumetraded
+		  oi
+		}
+	}`
+```
+
+3> `GraphqlServer("")`
+
+```
+
 query {
-  Tick(instrument_token:1893123) {
+  Tick(instrument_token:779521) {
     instrument_token
     timestamp
     lastprice
@@ -52,13 +106,15 @@ query {
     oi
   }
 }
-```
-
-2> `GraphqlServerList()`
 
 ```
-{
-  Tick(instrument_token: 779521) {
+
+4> `GraphqlServer("List")`
+
+```
+
+query {
+  Tick(instrument_token:779521) {
     instrument_token
     timestamp
     lastprice
@@ -66,74 +122,84 @@ query {
     oi
   }
 }
+
 ```
 
 ## Response
 
-1> `GraphqlServer()`
+1> `GraphqlQuery(reqQuery)`
 
 ```
+{Output:{InstrumentToken:779521 LastPrice:463.4 OI:0 Timestamp:2022-06-07 17:12:48 +0530 IST
+VolumeTraded:7672515}}
+```
+
+2> `GraphqlQueryList(reqQuery)`
+
+```
+{Output:[{InstrumentToken:779521 LastPrice:463.4 OI:0 Timestamp:2022-06-07 17:12:48 +0530 IST
+VolumeTraded:7672515}
+{InstrumentToken:779521 LastPrice:463.4 OI:0 Timestamp:2022-06-07 17:12:48 +0530 IST
+VolumeTraded:7672515}
+{InstrumentToken:779521 LastPrice:463.4 OI:0 Timestamp:2022-06-07 17:12:48 +0530 IST
+VolumeTraded:7672515}
+....
+```
+
+3> `GraphqlServer("")`
+
+```
+
 {
   "data": {
     "Tick": {
-      "instrument_token": 1893123,
-      "lastprice": 74.245,
-      "oi": 1990638,
-      "timestamp": "2021-08-24T16:38:39+05:30",
-      "volumetraded": 1099802
+    "instrument_token": 1893123,
+    "lastprice": 74.245,
+    "oi": 1990638,
+    "timestamp": "2021-08-24T16:38:39+05:30",
+    "volumetraded": 1099802
     }
   }
 }
+
 ```
 
-2> `GraphqlServerList()`
+4> `GraphqlServer("List")`
 
 ```
 {
   "data": {
     "Tick": [
-      {
-        "instrument_token": 779521,
-        "lastprice": 412.65,
-        "oi": 0,
-        "timestamp": "2021-08-26T12:19:09+05:30",
-        "volumetraded": 7619425
-      },
-      {
-        "instrument_token": 779521,
-        "lastprice": 412.65,
-        "oi": 0,
-        "timestamp": "2021-08-26T12:19:09+05:30",
-        "volumetraded": 7619425
-      },
-      {
-        "instrument_token": 779521,
-        "lastprice": 412.65,
-        "oi": 0,
-        "timestamp": "2021-08-26T12:19:09+05:30",
-        "volumetraded": 7619425
-      },
-      ...
-      ...
-      {
-        "instrument_token": 779521,
-        "lastprice": 412.65,
-        "oi": 0,
-        "timestamp": "2021-08-26T12:19:09+05:30",
-        "volumetraded": 7619425
-      },
-      ......
-    ]
+    {
+    "instrument_token": 779521,
+    "lastprice": 412.65,
+    "oi": 0,
+    "timestamp": "2021-08-26T12:19:09+05:30",
+    "volumetraded": 7619425
+    },
+    {
+    "instrument_token": 779521,
+    "lastprice": 412.65,
+    "oi": 0,
+    "timestamp": "2021-08-26T12:19:09+05:30",
+    "volumetraded": 7619425
+    },
+    ......]
   }
 }
+
 ```
 
 #### Sample query on graphiQL UI
 
-1> `GraphqlServer()`
+1> `GraphqlServer("")`
 
 ![graphQL_dash](https://user-images.githubusercontent.com/29432131/130611805-cb60ba36-4e3e-4a24-8b56-722f0b8ef238.png)
 
-2> `GraphqlServerList()`
+2> `GraphqlServer("List")`
 
 ![graphQL_dash_list](https://user-images.githubusercontent.com/29432131/137927877-ccac9786-9695-447a-92fe-8c4744ea240c.png)
+
+```
+
+```
