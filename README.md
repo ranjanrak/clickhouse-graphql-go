@@ -8,14 +8,14 @@ This package stores real time [streaming websocket data](https://kite.trade/docs
 ## Installation
 
 ```
-go get github.com/ranjanrak/clickhouse-graphql-go
+go get github.com/ranjanrak/clickhouse-graphql-go/v4
 ```
 
 ## Usage
 
 ```go
 import (
-    clickhousegraphqlgo "github.com/ranjanrak/clickhouse-graphql-go"
+    clickhousegraphqlgo "github.com/ranjanrak/clickhouse-graphql-go/v4"
 )
 
 // Create new graphql instance

@@ -1,4 +1,4 @@
-module github.com/ranjanrak/clickhouse-graphql-go
+module github.com/ranjanrak/clickhouse-graphql-go/v4
 
 go 1.17
 
