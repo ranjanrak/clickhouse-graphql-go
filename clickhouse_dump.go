@@ -120,7 +120,7 @@ func onTick(tick kiteticker.Tick) {
 		log.Fatalf("Error executing a query: %v", err)
 	}
 	if err := tx.Commit(); err != nil {
-		log.Fatalf("Error commiting the sql transaction: %v", err)
+		log.Fatalf("Error committing the sql transaction: %v", err)
 	}
 }
 

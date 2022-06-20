@@ -1,6 +1,8 @@
 # clickhouse-graphql-go
 
 [![Run Tests](https://github.com/ranjanrak/clickhouse-graphql-go/actions/workflows/go-test.yml/badge.svg?branch=main)](https://github.com/ranjanrak/clickhouse-graphql-go/actions/workflows/go-test.yml)
+[![Go Reference](https://pkg.go.dev/badge/github.com/ranjanrak/clickhouse-graphql-go/v4@v4.0.1.svg)](https://pkg.go.dev/github.com/ranjanrak/clickhouse-graphql-go/v4@v4.0.1)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ranjanrak/clickhouse-graphql-go/v4)](https://goreportcard.com/report/github.com/ranjanrak/clickhouse-graphql-go/v4)
 
 GraphQL implementation for clickhouse in Go.
 This package stores real time [streaming websocket data](https://kite.trade/docs/connect/v3/websocket/) in [clickhouse](https://clickhouse.tech/) and uses [GraphQL](https://graphql.org/) to consume the same.
@@ -199,7 +201,3 @@ VolumeTraded:7672515}
 2> `GraphqlServer("List")`
 
 ![graphQL_dash_list](https://user-images.githubusercontent.com/29432131/137927877-ccac9786-9695-447a-92fe-8c4744ea240c.png)
-
-```
-
-```
